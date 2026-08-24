@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>Mandelbrot — Sasan Hejrani</title>
-<meta name="description" content="A WebGL Mandelbrot set explorer with emulated double precision, rendering continuously as you zoom.">
+<meta name="description" content="A WebGL Mandelbrot set explorer, computed on the GPU and rendered continuously as you zoom.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -45,7 +45,7 @@
 
 <div class="hud tl">
   <div class="title">Mandelbrot</div>
-  <div class="sub">drag to pan · scroll to zoom · double-click to centre</div>
+  <div class="sub">drag to pan · scroll to zoom · double-click to centre · usable to ~10⁶</div>
 </div>
 
 <div class="hud bl">
@@ -203,7 +203,7 @@ let hue = 0;
 
 function iterations(){
   const z = 3.2 / view.span;
-  return Math.min(8000, Math.floor(180 + 220 * Math.log10(Math.max(z, 1)) ** 1.25));
+  return Math.min(3000, Math.floor(180 + 220 * Math.log10(Math.max(z, 1)) ** 1.25));
 }
 
 function resize(){
@@ -238,8 +238,8 @@ function render(){
   document.getElementById('re').textContent = view.cx.toFixed(digits);
   document.getElementById('im').textContent = view.cy.toFixed(digits);
   const p = document.getElementById('prec');
-  p.className = zoom > 8e12 ? 'warn' : '';
-  p.textContent = zoom > 8e12 ? '· precision limit' : '';
+  p.className = zoom > 4e5 ? 'warn' : '';
+  p.textContent = zoom > 4e5 ? '· precision limit — detail beyond this is not real' : '';
 }
 
 function fmtZoom(z){
