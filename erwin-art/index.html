@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>erwin-art — a portrait by Erwin</title>
+<meta name="description" content="A portrait of Sasan Hejrani, drawn by his nephew Erwin.">
+<style>
+  :root {
+    --paper: #f6f1e6;
+    --ink: #2b2620;
+    --pencil: #8a8074;
+    --accent: #3d5a80;
+    --accent-soft: #c9d6e3;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Georgia", "Iowan Old Style", serif;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6vh 6vw 4vh;
+  }
+
+  .crumb {
+    align-self: flex-start;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pencil);
+    text-decoration: none;
+    margin-bottom: 4vh;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .crumb:hover { color: var(--accent); border-color: var(--accent); }
+
+  header {
+    text-align: center;
+    max-width: 42rem;
+    margin-bottom: 5vh;
+  }
+
+  h1 {
+    font-weight: 400;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    margin: 0 0 0.6rem;
+    letter-spacing: 0.01em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.95rem;
+    color: var(--pencil);
+    letter-spacing: 0.02em;
+  }
+
+  figure {
+    margin: 0;
+    max-width: min(90vw, 46rem);
+    width: 100%;
+  }
+
+  .frame {
+    position: relative;
+    padding: 14px;
+    background: #fffdf9;
+    box-shadow:
+      0 1px 2px rgba(43, 38, 32, 0.06),
+      0 18px 40px -20px rgba(43, 38, 32, 0.35);
+    transform: rotate(-0.6deg);
+    transition: transform 0.4s ease;
+  }
+
+  .frame:hover { transform: rotate(0deg) scale(1.01); }
+
+  .frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .tape {
+    position: absolute;
+    width: 70px;
+    height: 26px;
+    background: rgba(201, 214, 227, 0.55);
+    border: 1px solid rgba(61, 90, 128, 0.15);
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  figcaption {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.85rem;
+    color: var(--pencil);
+    text-align: center;
+    margin-top: 1.4rem;
+    line-height: 1.6;
+  }
+
+  figcaption strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  footer {
+    margin-top: auto;
+    padding-top: 5vh;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.75rem;
+    color: var(--pencil);
+    text-align: center;
+  }
+
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  footer a:hover { text-decoration: underline; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .frame, .crumb { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+  <a class="crumb" href="https://hejrani.com">&larr; hejrani.com</a>
+
+  <header>
+    <h1>Portrait, by <em>Erwin</em></h1>
+    <p class="subtitle">age unknown, medium: touchscreen &middot; artist: my nephew</p>
+  </header>
+
+  <figure>
+    <div class="frame">
+      <div class="tape"></div>
+      <img src="erwin-art.png" alt="A colorful digital drawing by Erwin of his uncle Sasan, with long braided dark hair, a beard, and a calm smile.">
+    </div>
+    <figcaption>Drawn on a tablet by <strong>Erwin</strong>. This is apparently what I look like. I'm keeping it.</figcaption>
+  </figure>
+
+  <footer>
+    <a href="https://hejrani.com">hejrani.com</a>
+  </footer>
+
+</body>
+</html>
