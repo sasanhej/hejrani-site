@@ -230,7 +230,7 @@ vec3 palette(float t){
 
 /* one sample: perturbed iteration with rebasing */
 vec2 sample1(vec2 dc){
-  vec2 d = vec2(0.0);        // δ, in scaled units
+  vec2 d = vec2(0.);         // δ₀ = 0 — δc enters only through the update
   int m = 0;                 // index into the reference orbit
   int n = 0;
   vec2 z = vec2(0.);
@@ -251,22 +251,20 @@ vec2 sample1(vec2 dc){
     // the reference has stopped helping — restart from z itself.
     if (mag < dot(dTrue, dTrue) || m + 1 >= uRefLen){
       d = z / uInvS;
-      m = 1;
+      m = 0;
       Z = refAt(0);
-    } else {
-      m++;
     }
 
     // derivative in the same scaled units
     dzdc = 2.0 * vec2(z.x*dzdc.x - z.y*dzdc.y, z.x*dzdc.y + z.y*dzdc.x) + vec2(1.,0.);
 
     // δ' = 2·Z·δ + δ²  + δc   (δ² written to avoid overflow at large δ)
-    vec2 Zc = refAt(m == 0 ? 0 : m - 1);
-    vec2 twoZd = 2.0 * vec2(Zc.x*d.x - Zc.y*d.y, Zc.x*d.y + Zc.y*d.x);
+    vec2 twoZd = 2.0 * vec2(Z.x*d.x - Z.y*d.y, Z.x*d.y + Z.y*d.x);
     vec2 dScaled = d * uInvS;
     vec2 dSq = vec2(dScaled.x*d.x - dScaled.y*d.y, dScaled.x*d.y + dScaled.y*d.x);
     d = twoZd + dSq + dc;
 
+    m++;          // advance the reference index for the next step
     n++;
   }
 
