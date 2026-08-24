@@ -120,7 +120,7 @@
     <tr><td>GPU float32</td><td class="n">~7</td><td class="n">10⁵</td></tr>
     <tr><td>Emulated double on GPU</td><td class="n">~10</td><td class="n">10⁶</td></tr>
     <tr><td>float64 (CPU)</td><td class="n">~16</td><td class="n">10¹³</td></tr>
-    <tr><td>Perturbation</td><td class="n">as many as you like</td><td class="n">10³⁰ and beyond</td></tr>
+    <tr><td>Perturbation (this page)</td><td class="n">as many as you like</td><td class="n">10²⁶ measured</td></tr>
   </table>
 
   <p>The obvious fix is to use bigger numbers everywhere — hundreds of digits per pixel. That works, and it is unbearably slow: a million pixels × thousands of iterations × arithmetic hundreds of times more expensive than the hardware's native speed. Minutes per frame, not milliseconds.</p>
@@ -178,7 +178,7 @@
   <p>The renderer also tracks the derivative alongside the value, which gives an estimate of each pixel's distance to the boundary of the set. That is what the contour setting uses — it darkens near the edge and makes the filaments legible instead of aliased. It also means detail stays crisp at any magnification, because it measures geometry rather than counting steps.</p>
 
   <h2>What it still cannot do</h2>
-  <p>This implementation runs out somewhere around <strong>10³⁰</strong>, and the limit is no longer the reference orbit — that can go as deep as you like. It is that the per-pixel offsets are held in float32, whose smallest representable number is about 10⁻³⁸.</p>
+  <p>This implementation holds up cleanly to about <strong>10²⁶</strong>, starts losing detail by 10²⁸, and is flat by 10³⁰. I measured that rather than guessed it. The limit is not the reference orbit — that can go as deep as you like. It is that the orbit is <em>stored</em> as float32, carrying only about seven digits, and that error compounds through the 2·Z·δ term over thousands of iterations.</p>
 
   <p>Going deeper means storing each offset as a mantissa plus its own separate exponent, instead of relying on the hardware's. Fractal software calls this <em>floatexp</em>, and with it people have reached 10¹⁰⁰⁰ and further. The other missing piece is <em>series approximation</em>, which skips thousands of early iterations by approximating them with a polynomial — a large speed win, and orthogonal to everything above.</p>
 

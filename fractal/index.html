@@ -179,7 +179,8 @@ const PLACES = {
   Spiral:    { cx:'-0.16070135', cy:'1.0375665', zoomExp:6, maxIter:2000 },
   Minibrot:  { cx:'-1.768778833', cy:'0.001738996', zoomExp:8, maxIter:3000 },
   Tendril:   { cx:'-0.235125', cy:'0.827215', zoomExp:6, maxIter:2500 },
-  Deep:      { cx:'-1.7688438287288044425021155747725114494', cy:'0.0004890098922639602986530476', zoomExp:20, maxIter:12000 }
+  Deep:      { cx:'-0.743643887037158704752191506114774', cy:'0.131825904205311970493132056385139', zoomExp:18, maxIter:11000 },
+  Deeper:    { cx:'-0.743643887037158704752191506114774', cy:'0.131825904205311970493132056385139', zoomExp:24, maxIter:16000 }
 };
 
 /* ── shader ─────────────────────────────────────────────────────────────── */
@@ -212,7 +213,7 @@ vec2 refAt(int i){
 vec3 hsl(float h, float s, float l){
   vec3 k = mod(vec3(0.,8.,4.) + h*12., 12.);
   float a = s * min(l, 1.-l);
-  return l - a * max(-1., min(min(k-3., 9.-k), 1.));
+  return l - a * max(min(min(k-3., 9.-k), 1.), -1.);
 }
 
 vec3 palette(float t){
@@ -236,7 +237,7 @@ vec2 sample1(vec2 dc){
   vec2 dzdc = vec2(0.);      // derivative, for the contour estimate
   float mag = 0.;
 
-  for (int k = 0; k < 200000; k++){
+  for (int k = 0; k < 65536; k++){
     if (n >= uMaxIter) break;
 
     vec2 Z = refAt(m);
@@ -443,7 +444,7 @@ function render(){
   el('re').textContent = trim(view.cx);
   el('im').textContent = trim(view.cy);
   const w = el('warn');
-  w.textContent = pixel < 1e-37 ? '· float32 floor' : '';
+  w.textContent = view.zoomExp > 26 ? '· past verified depth' : '';
   writeHash();
   paintSwatch();
 }
