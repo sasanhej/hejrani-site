@@ -230,7 +230,7 @@ vec3 palette(float t){
 
 /* one sample: perturbed iteration with rebasing */
 vec2 sample1(vec2 dc){
-  vec2 d = vec2(0.0);        // δ, in scaled units
+  vec2 d = dc;               // δ, in scaled units
   int m = 0;                 // index into the reference orbit
   int n = 0;
   vec2 z = vec2(0.);
@@ -251,7 +251,7 @@ vec2 sample1(vec2 dc){
     // the reference has stopped helping — restart from z itself.
     if (mag < dot(dTrue, dTrue) || m + 1 >= uRefLen){
       d = z / uInvS;
-      m = 1;
+      m = 0;
       Z = refAt(0);
     } else {
       m++;
