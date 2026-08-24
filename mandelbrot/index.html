@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Mandelbrot — Sasan Hejrani</title>
+<meta name="description" content="A WebGL Mandelbrot set explorer with emulated double precision, rendering continuously as you zoom.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16202B; --steel:#3E5266; --muted:#8A99A6;
+    --signal:#C8901A; --concrete:#E6E8E6;
+    --mono:"IBM Plex Mono", ui-monospace, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--ink);color:var(--concrete);font-family:var(--mono)}
+  canvas{display:block;width:100vw;height:100vh;cursor:grab;touch-action:none}
+  canvas.drag{cursor:grabbing}
+
+  .hud{position:fixed;pointer-events:none;font-size:11px;letter-spacing:.06em;line-height:1.7;text-shadow:0 1px 3px rgba(0,0,0,.85)}
+  .tl{top:16px;left:18px}
+  .bl{bottom:16px;left:18px}
+  .br{bottom:16px;right:18px;text-align:right;pointer-events:auto}
+  .k{color:var(--muted);text-transform:uppercase;font-size:9px;letter-spacing:.14em}
+  .v{color:var(--concrete)}
+  .title{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--concrete)}
+  .sub{font-size:9.5px;color:var(--muted);letter-spacing:.1em}
+  a{color:var(--muted);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.18)}
+  a:hover{color:var(--signal);border-bottom-color:var(--signal)}
+  button{
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    background:rgba(230,232,230,.08);color:var(--concrete);border:1px solid rgba(230,232,230,.22);
+    padding:6px 12px;cursor:pointer;margin-left:6px;backdrop-filter:blur(6px);
+  }
+  button:hover{border-color:var(--signal);color:var(--signal)}
+  .warn{color:var(--signal)}
+  .fatal{position:fixed;inset:0;display:grid;place-items:center;padding:2rem;text-align:center;font-size:13px;line-height:1.7}
+  @media (max-width:640px){ .tl .sub{display:none} .bl{font-size:10px} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div class="hud tl">
+  <div class="title">Mandelbrot</div>
+  <div class="sub">drag to pan · scroll to zoom · double-click to centre</div>
+</div>
+
+<div class="hud bl">
+  <div><span class="k">zoom</span> <span class="v" id="zoom">1×</span> <span id="prec"></span></div>
+  <div><span class="k">iter</span> <span class="v" id="iter">—</span></div>
+  <div><span class="k">re</span> <span class="v" id="re">—</span></div>
+  <div><span class="k">im</span> <span class="v" id="im">—</span></div>
+</div>
+
+<div class="hud br">
+  <button id="reset">Reset</button>
+  <button id="shot">Save PNG</button>
+  <div class="sub" style="margin-top:10px"><a href="/">hejrani.com</a></div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const gl = canvas.getContext('webgl2', { antialias:false, preserveDrawingBuffer:true });
+
+if (!gl) {
+  document.body.innerHTML = '<div class="fatal">This page needs WebGL2, which your browser does not appear to support.<br><br><a href="/">Back to hejrani.com</a></div>';
+  throw new Error('no webgl2');
+}
+
+/* ---------------------------------------------------------------
+   Emulated double precision ("double-single"): every coordinate is
+   carried as two float32s, a high part and a low correction term.
+   Gives ~1e13 zoom instead of the ~1e5 that plain float32 allows.
+   --------------------------------------------------------------- */
+const VS = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+
+const FS = `#version 300 es
+precision highp float;
+out vec4 o;
+
+uniform vec2 uCx, uCy;     // centre  (hi, lo)
+uniform vec2 uScale;       // units per pixel (hi, lo)
+uniform vec2 uRes;
+uniform int  uIter;
+uniform float uTime;
+
+vec2 ds(float a){ return vec2(a, 0.0); }
+
+vec2 dsAdd(vec2 a, vec2 b){
+  float t1 = a.x + b.x;
+  float e  = t1 - a.x;
+  float t2 = ((b.x - e) + (a.x - (t1 - e))) + a.y + b.y;
+  float hi = t1 + t2;
+  return vec2(hi, t2 - (hi - t1));
+}
+vec2 dsNeg(vec2 a){ return vec2(-a.x, -a.y); }
+vec2 dsSub(vec2 a, vec2 b){ return dsAdd(a, dsNeg(b)); }
+
+vec2 dsMul(vec2 a, vec2 b){
+  float split = 8193.0;
+  float ca = a.x * split; float cb = b.x * split;
+  float a1 = ca - (ca - a.x); float b1 = cb - (cb - b.x);
+  float a2 = a.x - a1;       float b2 = b.x - b1;
+  float c11 = a.x * b.x;
+  float c21 = a2*b2 + (a2*b1 + (a1*b2 + (a1*b1 - c11)));
+  float c2  = a.x*b.y + a.y*b.x;
+  float t1 = c11 + c2;
+  float e  = t1 - c11;
+  float t2 = a.y*b.y + ((c2 - e) + (c11 - (t1 - e))) + c21;
+  float hi = t1 + t2;
+  return vec2(hi, t2 - (hi - t1));
+}
+
+// palette derived from the hejrani.com tokens: ink, steel, concrete, signal
+vec3 palette(float t){
+  t = fract(t);
+  vec3 ink      = vec3(0.086,0.125,0.169);
+  vec3 steel    = vec3(0.243,0.322,0.400);
+  vec3 concrete = vec3(0.902,0.910,0.902);
+  vec3 signal   = vec3(0.784,0.565,0.102);
+  vec3 deep     = vec3(0.043,0.075,0.110);
+  if (t < 0.25) return mix(deep, steel, smoothstep(0.0,1.0,t/0.25));
+  if (t < 0.50) return mix(steel, concrete, smoothstep(0.0,1.0,(t-0.25)/0.25));
+  if (t < 0.75) return mix(concrete, signal, smoothstep(0.0,1.0,(t-0.50)/0.25));
+  return mix(signal, deep, smoothstep(0.0,1.0,(t-0.75)/0.25));
+}
+
+void main(){
+  vec2 px = gl_FragCoord.xy - 0.5 * uRes;      // pixels from centre
+  vec2 cx = dsAdd(uCx, dsMul(uScale, ds(px.x)));
+  vec2 cy = dsAdd(uCy, dsMul(uScale, ds(px.y)));
+
+  vec2 zx = ds(0.0), zy = ds(0.0);
+  vec2 zx2 = ds(0.0), zy2 = ds(0.0);
+  int  n = 0;
+  float mag = 0.0;
+
+  for (int i = 0; i < 8192; i++){
+    if (i >= uIter) break;
+    mag = zx2.x + zy2.x;
+    if (mag > 256.0) break;
+    // z = z^2 + c   (2*zx*zy needs full precision too)
+    vec2 xy = dsMul(zx, zy);
+    zy = dsAdd(dsAdd(xy, xy), cy);
+    zx = dsAdd(dsSub(zx2, zy2), cx);
+    zx2 = dsMul(zx, zx);
+    zy2 = dsMul(zy, zy);
+    n = i;
+  }
+
+  if (n >= uIter - 1){ o = vec4(0.031,0.055,0.078, 1.0); return; }
+
+  // continuous (smooth) escape time
+  float sm = float(n) + 1.0 - log2(max(log2(max(mag, 1.0001)), 1e-8));
+  float t  = sqrt(max(sm, 0.0)) * 0.045 + uTime;
+  o = vec4(palette(t), 1.0);
+}`;
+
+function compile(type, src){
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+let prog;
+try {
+  prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+} catch (e) {
+  document.body.innerHTML = '<div class="fatal">The shader failed to compile on this device.<br><br><span style="color:#8A99A6;font-size:11px">' + String(e.message).slice(0,300) + '</span><br><br><a href="/">Back to hejrani.com</a></div>';
+  throw e;
+}
+gl.useProgram(prog);
+
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+const loc = gl.getAttribLocation(prog, 'p');
+gl.enableVertexAttribArray(loc);
+gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+const U = n => gl.getUniformLocation(prog, n);
+const uCx = U('uCx'), uCy = U('uCy'), uScale = U('uScale'),
+      uRes = U('uRes'), uIter = U('uIter'), uTime = U('uTime');
+
+/* split a JS double into two float32s */
+function split(v){
+  const hi = Math.fround(v);
+  return [hi, Math.fround(v - hi)];
+}
+
+const view = { cx: -0.6, cy: 0.0, span: 3.2 };   // span = width in complex units
+let dpr = Math.min(window.devicePixelRatio || 1, 2);
+let quality = 1;                                  // drops while interacting
+let hue = 0;
+
+function iterations(){
+  const z = 3.2 / view.span;
+  return Math.min(8000, Math.floor(180 + 220 * Math.log10(Math.max(z, 1)) ** 1.25));
+}
+
+function resize(){
+  const w = Math.floor(innerWidth  * dpr * quality);
+  const h = Math.floor(innerHeight * dpr * quality);
+  if (canvas.width !== w || canvas.height !== h){
+    canvas.width = w; canvas.height = h;
+  }
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
+
+function render(){
+  resize();
+  const scale = view.span / canvas.width;     // complex units per device pixel
+  const [sx, sl] = split(scale);
+  const [cxh, cxl] = split(view.cx);
+  const [cyh, cyl] = split(view.cy);
+  const it = iterations();
+
+  gl.uniform2f(uCx, cxh, cxl);
+  gl.uniform2f(uCy, cyh, cyl);
+  gl.uniform2f(uScale, sx, sl);
+  gl.uniform2f(uRes, canvas.width, canvas.height);
+  gl.uniform1i(uIter, it);
+  gl.uniform1f(uTime, hue);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  const zoom = 3.2 / view.span;
+  document.getElementById('zoom').textContent = fmtZoom(zoom);
+  document.getElementById('iter').textContent = it;
+  const digits = Math.max(4, Math.min(17, Math.ceil(Math.log10(zoom)) + 5));
+  document.getElementById('re').textContent = view.cx.toFixed(digits);
+  document.getElementById('im').textContent = view.cy.toFixed(digits);
+  const p = document.getElementById('prec');
+  p.className = zoom > 8e12 ? 'warn' : '';
+  p.textContent = zoom > 8e12 ? '· precision limit' : '';
+}
+
+function fmtZoom(z){
+  if (z < 1000) return z.toFixed(1) + '×';
+  const e = Math.floor(Math.log10(z));
+  return (z / 10 ** e).toFixed(2) + '×10' + sup(e);
+}
+function sup(n){
+  const m = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  return String(n).split('').map(c => m[c] || c).join('');
+}
+
+let pending = false;
+function draw(){
+  if (pending) return;
+  pending = true;
+  requestAnimationFrame(() => { pending = false; render(); });
+}
+
+/* ---- interaction ---- */
+let idleTimer;
+function interacting(){
+  if (quality !== 0.5){ quality = 0.5; }
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => { quality = 1; draw(); }, 180);
+}
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  interacting();
+  const r = canvas.getBoundingClientRect();
+  const px = (e.clientX - r.left) / r.width  - 0.5;
+  const py = 0.5 - (e.clientY - r.top) / r.height;
+  const aspect = canvas.height / canvas.width;
+  const mx = view.cx + px * view.span;
+  const my = view.cy + py * view.span * aspect;
+  const f = Math.exp(e.deltaY * 0.0013);
+  view.span *= f;
+  view.cx = mx + (view.cx - mx) * f;
+  view.cy = my + (view.cy - my) * f;
+  draw();
+}, { passive:false });
+
+let drag = null;
+canvas.addEventListener('pointerdown', e => {
+  drag = { x:e.clientX, y:e.clientY };
+  canvas.setPointerCapture(e.pointerId);
+  canvas.classList.add('drag');
+});
+canvas.addEventListener('pointermove', e => {
+  if (!drag) return;
+  interacting();
+  const r = canvas.getBoundingClientRect();
+  const aspect = canvas.height / canvas.width;
+  view.cx -= (e.clientX - drag.x) / r.width  * view.span;
+  view.cy += (e.clientY - drag.y) / r.height * view.span * aspect;
+  drag = { x:e.clientX, y:e.clientY };
+  draw();
+});
+addEventListener('pointerup', e => { drag = null; canvas.classList.remove('drag'); draw(); });
+
+canvas.addEventListener('dblclick', e => {
+  const r = canvas.getBoundingClientRect();
+  const px = (e.clientX - r.left) / r.width - 0.5;
+  const py = 0.5 - (e.clientY - r.top) / r.height;
+  const aspect = canvas.height / canvas.width;
+  view.cx += px * view.span;
+  view.cy += py * view.span * aspect;
+  view.span *= 0.4;
+  draw();
+});
+
+/* pinch */
+const pts = new Map();
+canvas.addEventListener('pointerdown', e => pts.set(e.pointerId, e));
+canvas.addEventListener('pointerup',   e => pts.delete(e.pointerId));
+canvas.addEventListener('pointercancel', e => pts.delete(e.pointerId));
+let pinch0 = null;
+canvas.addEventListener('pointermove', e => {
+  if (pts.has(e.pointerId)) pts.set(e.pointerId, e);
+  if (pts.size === 2){
+    drag = null;
+    const [a,b] = [...pts.values()];
+    const d = Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY);
+    if (pinch0){ view.span *= pinch0 / d; draw(); interacting(); }
+    pinch0 = d;
+  } else pinch0 = null;
+});
+
+document.getElementById('reset').onclick = () => {
+  view.cx = -0.6; view.cy = 0; view.span = 3.2; hue = 0; draw();
+};
+document.getElementById('shot').onclick = () => {
+  render();
+  const a = document.createElement('a');
+  a.download = 'mandelbrot-' + fmtZoom(3.2/view.span).replace(/[^\dx]/g,'') + '.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+};
+addEventListener('keydown', e => {
+  if (e.key === 'r') document.getElementById('reset').click();
+  if (e.key === 'c'){ hue = (hue + 0.08) % 1; draw(); }
+});
+addEventListener('resize', draw);
+
+draw();
+</script>
+</body>
+</html>
