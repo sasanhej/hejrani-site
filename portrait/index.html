@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portrait — Sasan Hejrani</title>
+<meta name="description" content="A cubist portrait, with the palette left in the viewer's hands.">
+<meta property="og:title" content="Portrait — Sasan Hejrani">
+<meta property="og:description" content="A cubist portrait, with the palette left in the viewer's hands.">
+<meta property="og:image" content="portrait.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wall:#16171B; --wall2:#0D0E11;
+    --ink:#E9E5DC; --muted:#8C8779; --line:rgba(233,229,220,.14);
+    --accent:#E0A33E;
+    --display:"Archivo", system-ui, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:radial-gradient(120% 90% at 50% -10%, var(--wall) 0%, var(--wall2) 70%);
+    color:var(--ink); font-family:var(--mono); -webkit-text-size-adjust:100%;
+  }
+
+  .shell{
+    min-height:100vh; display:grid; gap:clamp(1.5rem,3vw,3rem);
+    grid-template-columns:1fr; align-content:start;
+    padding:clamp(1.2rem,3vw,2.5rem);
+  }
+  @media (min-width:940px){
+    .shell{grid-template-columns:minmax(0,1fr) 300px; align-items:start; min-height:100vh}
+  }
+
+  /* ── the wall ── */
+  .stage{display:flex;flex-direction:column;align-items:center;gap:1.1rem;min-width:0}
+  .frame{
+    position:relative; line-height:0; max-width:100%;
+    padding:clamp(10px,1.3vw,18px);
+    background:linear-gradient(155deg,#2A2723 0%, #0B0A09 45%, #211E1A 100%);
+    box-shadow:0 45px 80px -38px rgba(0,0,0,.9), 0 8px 22px -12px rgba(0,0,0,.6),
+               inset 0 0 0 1px rgba(255,255,255,.07);
+  }
+  .frame::after{content:"";position:absolute;inset:clamp(7px,1vw,14px);
+    box-shadow:inset 0 0 18px rgba(0,0,0,.8);pointer-events:none;z-index:2}
+  img{
+    display:block; max-width:100%; max-height:76vh; width:auto; height:auto;
+    position:relative; z-index:1; cursor:zoom-in;
+    transition:filter .08s linear;
+  }
+  .caption{font-size:10px;letter-spacing:.14em;color:var(--muted);text-align:center;line-height:1.9}
+  .caption b{color:var(--ink);font-weight:500;letter-spacing:.2em;text-transform:uppercase}
+
+  /* ── controls ── */
+  aside{display:flex;flex-direction:column;gap:1.35rem}
+  h1{
+    font-family:var(--display); font-variation-settings:'wdth' 112; font-weight:700;
+    font-size:1rem; letter-spacing:.22em; text-transform:uppercase; margin:0 0 .1rem;
+  }
+  .lede{font-size:10px;letter-spacing:.1em;color:var(--muted);line-height:1.95;margin:0 0 .3rem}
+  .ctl{display:flex;flex-direction:column;gap:.5rem}
+  .row{display:flex;justify-content:space-between;align-items:baseline;
+       font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .row output{color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:.08em}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;background:transparent;margin:0;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--line)}
+  input[type=range]::-moz-range-track{height:1px;background:var(--line)}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:11px;height:11px;border-radius:50%;
+    background:var(--ink);margin-top:-5px;border:0;transition:.15s}
+  input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--ink);border:0}
+  input[type=range]:hover::-webkit-slider-thumb,
+  input[type=range]:focus-visible::-webkit-slider-thumb{background:var(--accent);transform:scale(1.25)}
+  input[type=range]:hover::-moz-range-thumb{background:var(--accent)}
+  input[type=range]:focus-visible{outline:none}
+
+  .presets{display:flex;flex-wrap:wrap;gap:.35rem}
+  button{
+    font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+    background:transparent;color:var(--muted);border:1px solid var(--line);
+    padding:7px 11px;cursor:pointer;transition:.16s;
+  }
+  button:hover{color:var(--ink);border-color:var(--ink)}
+  button.primary{color:var(--ink)}
+  .sep{height:1px;background:var(--line);margin:.1rem 0}
+  footer{font-size:9px;letter-spacing:.12em;color:var(--muted);margin-top:auto;padding-top:.6rem}
+  a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
+  a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* ── gallery mode: chrome away, painting only ── */
+  body.zen .shell{grid-template-columns:1fr;padding:0;place-items:center;min-height:100vh}
+  body.zen aside, body.zen .caption{display:none}
+  body.zen .frame{padding:0;box-shadow:none;background:none}
+  body.zen .frame::after{display:none}
+  body.zen img{max-height:100vh;cursor:zoom-out}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <main class="stage">
+    <div class="frame">
+        <img id="art" src="portrait.jpg" srcset="portrait.jpg 1400w, portrait@2x.jpg 2200w"
+             sizes="(min-width:940px) min(62vw,760px), 92vw"
+             width="1400" height="1818" alt="Cubist oil portrait of Sasan Hejrani">
+      </div>
+    <div class="caption"><b>Untitled</b> · oil on canvas, after the cubists · click to view full</div>
+  </main>
+
+  <aside>
+    <div>
+      <h1>Portrait</h1>
+      <p class="lede">The painting is fixed. The palette is not — move the sliders and it becomes a different picture.</p>
+    </div>
+    <div class="sep"></div>
+
+    <div class="ctl">
+      <div class="row"><label for="saturate">Vibrance</label><output id="o-saturate">100%</output></div>
+      <input type="range" id="saturate" min="0" max="300" value="100" step="1">
+    </div>
+    <div class="ctl">
+      <div class="row"><label for="contrast">Contrast</label><output id="o-contrast">100%</output></div>
+      <input type="range" id="contrast" min="50" max="200" value="100" step="1">
+    </div>
+    <div class="ctl">
+      <div class="row"><label for="hue">Hue shift</label><output id="o-hue">0°</output></div>
+      <input type="range" id="hue" min="0" max="360" value="0" step="1">
+    </div>
+    <div class="ctl">
+      <div class="row"><label for="brightness">Brightness</label><output id="o-brightness">100%</output></div>
+      <input type="range" id="brightness" min="20" max="200" value="100" step="1">
+    </div>
+    <div class="ctl">
+      <div class="row"><label for="sepia">Age</label><output id="o-sepia">0%</output></div>
+      <input type="range" id="sepia" min="0" max="100" value="0" step="1">
+    </div>
+
+    <div class="sep"></div>
+    <div class="presets">
+      <button data-p="original" class="primary">Original</button>
+      <button data-p="fauve">Fauve</button>
+      <button data-p="nocturne">Nocturne</button>
+      <button data-p="bleached">Bleached</button>
+      <button data-p="chrome">Chrome</button>
+    </div>
+    <div class="presets">
+      <button id="save">Save PNG</button>
+      <button id="zen">Full view</button>
+    </div>
+
+    <footer><a href="https://hejrani.com">hejrani.com</a></footer>
+  </aside>
+</div>
+
+<script>
+const art = document.getElementById('art');
+const ids = ['saturate','contrast','hue','brightness','sepia'];
+const el = {}, out = {};
+ids.forEach(i => { el[i] = document.getElementById(i); out[i] = document.getElementById('o-' + i); });
+
+const UNIT = { hue:'°', saturate:'%', contrast:'%', brightness:'%', sepia:'%' };
+
+const PRESETS = {
+  original: { saturate:100, contrast:100, hue:0,   brightness:100, sepia:0  },
+  fauve:    { saturate:245, contrast:118, hue:12,  brightness:104, sepia:0  },
+  nocturne: { saturate:135, contrast:132, hue:205, brightness:74,  sepia:0  },
+  bleached: { saturate:38,  contrast:112, hue:0,   brightness:118, sepia:34 },
+  chrome:   { saturate:0,   contrast:158, hue:0,   brightness:98,  sepia:0  }
+};
+
+function filterString(){
+  return `saturate(${el.saturate.value}%) contrast(${el.contrast.value}%) `
+       + `hue-rotate(${el.hue.value}deg) brightness(${el.brightness.value}%) `
+       + `sepia(${el.sepia.value}%)`;
+}
+
+function apply(){
+  ids.forEach(i => out[i].textContent = el[i].value + UNIT[i]);
+  art.style.filter = filterString();
+}
+
+function set(p, animate){
+  const t = PRESETS[p];
+  if (!t) return;
+  if (!animate){ ids.forEach(i => el[i].value = t[i]); apply(); return; }
+  const from = {}; ids.forEach(i => from[i] = +el[i].value);
+  const t0 = performance.now(), dur = 420;
+  const ease = x => 1 - Math.pow(1-x, 3);
+  (function step(){
+    const k = ease(Math.min(1, (performance.now()-t0)/dur));
+    ids.forEach(i => el[i].value = Math.round(from[i] + (t[i]-from[i])*k));
+    apply();
+    if (k < 1) requestAnimationFrame(step);
+  })();
+}
+
+ids.forEach(i => el[i].addEventListener('input', apply));
+document.querySelectorAll('[data-p]').forEach(b =>
+  b.addEventListener('click', () => set(b.dataset.p, !matchMedia('(prefers-reduced-motion: reduce)').matches)));
+
+/* bake the current look into a downloadable file */
+document.getElementById('save').addEventListener('click', () => {
+  const c = document.createElement('canvas');
+  c.width = art.naturalWidth; c.height = art.naturalHeight;
+  const ctx = c.getContext('2d');
+  if ('filter' in ctx) ctx.filter = filterString();
+  ctx.drawImage(art, 0, 0);
+  try {
+    const a = document.createElement('a');
+    a.download = 'portrait-recoloured.png';
+    a.href = c.toDataURL('image/png');
+    a.click();
+  } catch (e) {
+    alert('Your browser blocked the export. Right-click the painting and choose "Save image as" instead.');
+  }
+});
+
+const zen = () => document.body.classList.toggle('zen');
+document.getElementById('zen').addEventListener('click', zen);
+art.addEventListener('click', zen);
+addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.body.classList.remove('zen');
+  if (e.key === 'r') set('original', true);
+  if (e.key === 'f') zen();
+});
+
+apply();
+</script>
+</body>
+</html>
