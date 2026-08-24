@@ -147,7 +147,7 @@ const extF = gl.getExtension('EXT_color_buffer_float');
 /* ── decimal-string arithmetic for the view centre ─────────────────────────
    The centre must survive depths where a double has no digits left, so it is
    kept as a string and moved with BigInt fixed point.                        */
-const FRAC = 1n << 12n;                 // sub-pixel resolution for panning
+const FRAC = 4096n;                     // sub-pixel resolution (1n<<12n)
 function bitsFor(zoomExp){ return Math.max(96, Math.ceil(zoomExp * 3.322) + 96); }
 
 function fromString(s, shift){
@@ -392,8 +392,10 @@ function shiftCentre(dxPix, dyPix){
   // fractional part of zoomExp handled as a double multiplier
   const fracMul = Math.pow(10, e - view.zoomExp);      // in (0.1, 1]
   const pixel = (span * BigInt(Math.round(fracMul * 1e12))) / (BigInt(pw) * 1000000000000n);
-  view.cx = toStringFixed(cx + pixel * BigInt(Math.round(dxPix)), shift, digits());
-  view.cy = toStringFixed(cy + pixel * BigInt(Math.round(dyPix)), shift, digits());
+  // 1/4096-pixel resolution: zoom-to-cursor produces fractional offsets
+  const sx = BigInt(Math.round(dxPix * 4096)), sy = BigInt(Math.round(dyPix * 4096));
+  view.cx = toStringFixed(cx + (pixel * sx) / FRAC, shift, digits());
+  view.cy = toStringFixed(cy + (pixel * sy) / FRAC, shift, digits());
 }
 function digits(){ return Math.min(400, Math.ceil(view.zoomExp) + 12); }
 
@@ -511,8 +513,12 @@ function syncInputs(){
 }
 
 /* ── interaction ── */
-function zoomAt(px, py, factor){
-  shiftCentre(px, py);
+function zoomAt(px, py, factor, anchor){
+  // anchor: hold the point under the cursor still. The centre only needs to
+  // travel (1 - factor) of the way to it — moving the full distance would
+  // centre that point instead, which is the bug this replaces.
+  const k = anchor ? (1 - factor) : 1;
+  shiftCentre(px * k, py * k);
   view.zoomExp += Math.log10(1/factor);
   view.zoomExp = Math.max(0, view.zoomExp);
   view.maxIter = Math.max(view.maxIter, Math.round(600 + 900 * Math.max(0, view.zoomExp)));
@@ -527,7 +533,7 @@ canvas.addEventListener('wheel', e => {
   const dpr = canvas.width / r.width;
   const px = (e.clientX - r.left) * dpr - canvas.width/2;
   const py = canvas.height/2 - (e.clientY - r.top) * dpr;
-  zoomAt(px, py, Math.exp(e.deltaY * 0.0012));
+  zoomAt(px, py, Math.exp(e.deltaY * 0.0012), true);
 }, { passive:false });
 
 let drag = null;
@@ -544,7 +550,7 @@ addEventListener('pointerup', () => { drag = null; canvas.classList.remove('drag
 canvas.addEventListener('dblclick', e => {
   const r = canvas.getBoundingClientRect();
   const dpr = canvas.width / r.width;
-  zoomAt((e.clientX-r.left)*dpr - canvas.width/2, canvas.height/2 - (e.clientY-r.top)*dpr, 0.4);
+  zoomAt((e.clientX-r.left)*dpr - canvas.width/2, canvas.height/2 - (e.clientY-r.top)*dpr, 0.4, false);
 });
 
 /* controls */
