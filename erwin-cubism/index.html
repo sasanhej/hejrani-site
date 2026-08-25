@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portrait, by Erwin — Sasan Hejrani</title>
+<meta name="description" content="A portrait drawn by my nephew Erwin, and the same drawing rebuilt in facets. Drag the seam.">
+<meta property="og:title" content="Portrait, by Erwin — Sasan Hejrani">
+<meta property="og:description" content="A portrait drawn by my nephew Erwin, and the same drawing rebuilt in facets. Drag the seam.">
+<meta property="og:image" content="cubist-1000.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wall:#16171B; --wall2:#0D0E11;
+    --ink:#E9E5DC; --muted:#8C8779; --line:rgba(233,229,220,.14);
+    --accent:#E0A33E;
+    --display:"Archivo", system-ui, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, monospace;
+    --x:50%;
+    --pad:clamp(10px,1.3vw,18px);
+    --ar:1.6;      /* 1920 x 1200 */
+    --cap:76vh;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:radial-gradient(120% 90% at 50% -10%, var(--wall) 0%, var(--wall2) 70%);
+    color:var(--ink); font-family:var(--mono); -webkit-text-size-adjust:100%;
+  }
+
+  .shell{
+    min-height:100vh; display:grid; gap:clamp(1.5rem,3vw,3rem);
+    grid-template-columns:1fr; align-content:start;
+    padding:clamp(1.2rem,3vw,2.5rem);
+  }
+  @media (min-width:940px){
+    .shell{grid-template-columns:minmax(0,1fr) 300px; align-items:start; min-height:100vh}
+  }
+
+  /* ── the wall ── */
+  .stage{display:flex;flex-direction:column;align-items:center;min-width:0}
+  .plate{display:flex;flex-direction:column;align-items:stretch;gap:1.1rem;
+         width:fit-content; max-width:min(100%, calc(var(--cap) * var(--ar) + 2 * var(--pad)))}
+  .frame{
+    position:relative; line-height:0; max-width:100%;
+    padding:var(--pad);
+    background:linear-gradient(155deg,#2A2723 0%, #0B0A09 45%, #211E1A 100%);
+    box-shadow:0 45px 80px -38px rgba(0,0,0,.9), 0 8px 22px -12px rgba(0,0,0,.6),
+               inset 0 0 0 1px rgba(255,255,255,.07);
+  }
+  .frame::after{content:"";position:absolute;inset:clamp(7px,1vw,14px);
+    box-shadow:inset 0 0 18px rgba(0,0,0,.8);pointer-events:none;z-index:3}
+
+  /* ── the seam ── */
+  .compare{
+    position:relative; display:block; touch-action:none; cursor:ew-resize;
+    -webkit-user-select:none; user-select:none; z-index:1;
+    width:100%; aspect-ratio:var(--ar);
+  }
+  .compare img{
+    display:block; width:100%; height:100%; object-fit:fill;
+    -webkit-user-drag:none; user-drag:none; pointer-events:none;
+    transition:filter .08s linear;
+  }
+  .wipe{position:absolute; inset:0; overflow:hidden; clip-path:inset(0 0 0 var(--x))}
+  .wipe img{position:absolute; inset:0}
+
+  .handle{
+    position:absolute; top:0; bottom:0; left:var(--x); width:1px;
+    background:var(--accent); z-index:2; pointer-events:none;
+  }
+  .handle::before{
+    content:""; position:absolute; top:50%; left:50%; width:34px; height:34px;
+    transform:translate(-50%,-50%); border-radius:50%;
+    background:rgba(13,14,17,.72); border:1px solid var(--accent);
+    box-shadow:0 2px 14px rgba(0,0,0,.55); transition:transform .18s;
+  }
+  .handle::after{
+    content:"⟺"; position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%); font-size:12px; color:var(--accent);
+    line-height:1; letter-spacing:0;
+  }
+  .compare:hover .handle::before,
+  .compare:focus-visible .handle::before{transform:translate(-50%,-50%) scale(1.12)}
+  .compare:focus-visible{outline:1px solid var(--accent); outline-offset:6px}
+
+  /* ── legend: opacity tracks how much of the wall each version holds ── */
+  .legend{
+    display:flex; align-items:baseline; gap:.9rem; width:100%;
+    font-size:9.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink);
+  }
+  .legend span:first-child{text-align:left}
+  .legend span:last-child{text-align:right}
+  .legend span:first-child, .legend span:last-child{flex:1}
+  .legend output{color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:.08em;font-size:9.5px}
+
+  .caption{font-size:10px;letter-spacing:.14em;color:var(--muted);text-align:center;line-height:1.9}
+  .caption b{color:var(--ink);font-weight:500;letter-spacing:.2em;text-transform:uppercase}
+
+  /* ── controls ── */
+  aside{display:flex;flex-direction:column;gap:1.35rem}
+  h1{
+    font-family:var(--display); font-variation-settings:'wdth' 112; font-weight:700;
+    font-size:1rem; letter-spacing:.22em; text-transform:uppercase; margin:0 0 .1rem;
+  }
+  .lede{font-size:10px;letter-spacing:.1em;color:var(--muted);line-height:1.95;margin:0 0 .3rem}
+  .who{font-size:9.5px;letter-spacing:.14em;color:var(--muted);line-height:1.9;margin:0}
+  .who b{color:var(--ink);font-weight:500}
+  .who .age{color:var(--accent)}
+  .ctl{display:flex;flex-direction:column;gap:.5rem}
+  .row{display:flex;justify-content:space-between;align-items:baseline;
+       font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .row output{color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:.08em}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;background:transparent;margin:0;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--line)}
+  input[type=range]::-moz-range-track{height:1px;background:var(--line)}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:11px;height:11px;border-radius:50%;
+    background:var(--ink);margin-top:-5px;border:0;transition:.15s}
+  input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--ink);border:0}
+  input[type=range]:hover::-webkit-slider-thumb,
+  input[type=range]:focus-visible::-webkit-slider-thumb{background:var(--accent);transform:scale(1.25)}
+  input[type=range]:hover::-moz-range-thumb{background:var(--accent)}
+  input[type=range]:focus-visible{outline:none}
+
+  .presets{display:flex;flex-wrap:wrap;gap:.35rem}
+  button{
+    font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+    background:transparent;color:var(--muted);border:1px solid var(--line);
+    padding:7px 11px;cursor:pointer;transition:.16s;
+  }
+  button:hover{color:var(--ink);border-color:var(--ink)}
+  button.primary{color:var(--ink)}
+  button:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
+  .sep{height:1px;background:var(--line);margin:.1rem 0}
+  footer{font-size:9px;letter-spacing:.12em;color:var(--muted);margin-top:auto;padding-top:.6rem}
+  a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
+  a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* ── gallery mode: chrome away, painting only ── */
+  body.zen .shell{grid-template-columns:1fr;padding:0;place-items:center;min-height:100vh}
+  body.zen aside, body.zen .caption, body.zen .legend{display:none}
+  body.zen .plate{gap:0; --pad:0px; max-width:min(100%, calc(100vh * var(--ar)))}
+  body.zen .frame{padding:0;box-shadow:none;background:none}
+  body.zen .frame::after{display:none}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <main class="stage">
+   <div class="plate">
+    <div class="frame">
+      <div class="compare" id="compare" tabindex="0" role="slider"
+           aria-label="Reveal the faceted version" aria-orientation="horizontal"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50% faceted">
+        <picture>
+          <source type="image/webp" srcset="drawing-1000.webp 1000w, drawing-1920.webp 1920w"
+                  sizes="(min-width:940px) min(62vw,860px), 92vw">
+          <img id="base" src="drawing-1920.jpg"
+               srcset="drawing-1000.jpg 1000w, drawing-1920.jpg 1920w"
+               sizes="(min-width:940px) min(62vw,860px), 92vw"
+               width="1920" height="1200"
+               alt="A tablet drawing by Erwin: a man with long dark braided hair, a full beard and closed eyes, with two blue shapes either side of his head.">
+        </picture>
+        <div class="wipe">
+          <picture>
+            <source type="image/webp" srcset="cubist-1000.webp 1000w, cubist-1920.webp 1920w"
+                    sizes="(min-width:940px) min(62vw,860px), 92vw">
+            <img id="over" src="cubist-1920.jpg"
+                 srcset="cubist-1000.jpg 1000w, cubist-1920.jpg 1920w"
+                 sizes="(min-width:940px) min(62vw,860px), 92vw"
+                 width="1920" height="1200"
+                 alt="The same portrait rebuilt as flat angular facets, like cut paper or painted wooden panels.">
+          </picture>
+        </div>
+        <div class="handle"></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span id="lab-l">Drawing <output id="pct-l">50%</output></span>
+      <span id="lab-r"><output id="pct-r">50%</output> Facets</span>
+    </div>
+
+    <div class="caption"><b>Portrait of my uncle</b> · drawn on a tablet by Erwin · the right half is the same drawing, rebuilt in facets · drag the seam</div>
+   </div>
+  </main>
+
+  <aside>
+    <div>
+      <h1>By Erwin</h1>
+      <p class="lede">My nephew drew this of me. Drag the seam across the canvas and the drawing turns into facets, one strip at a time. The sliders below recolour both halves at once.</p>
+      <p class="who"><b>Erwin</b> — born Mordad 1397 in Tehran, <span class="age" id="age">8</span> years old.</p>
+    </div>
+    <div class="sep"></div>
+
+    <div class="ctl">
+      <div class="row"><label for="saturate">Vibrance</label><output id="o-saturate">100%</output></div>
+      <input type="range" id="saturate" min="0" max="300" value="100" step="1">
+    </div>
+    <div class="ctl">
+      <div class="row"><label for="contrast">Contrast</label><output id="o-contrast">100%</output></div>
+      <input type="range" id="contrast" min="50" max="200" value="100" step="1">
+    </div>
+    <div class="ctl">
+      <div class="row"><label for="hue">Hue shift</label><output id="o-hue">0°</output></div>
+      <input type="range" id="hue" min="0" max="360" value="0" step="1">
+    </div>
+    <div class="ctl">
+      <div class="row"><label for="brightness">Brightness</label><output id="o-brightness">100%</output></div>
+      <input type="range" id="brightness" min="20" max="200" value="100" step="1">
+    </div>
+    <div class="ctl">
+      <div class="row"><label for="sepia">Patina</label><output id="o-sepia">0%</output></div>
+      <input type="range" id="sepia" min="0" max="100" value="0" step="1">
+    </div>
+
+    <div class="sep"></div>
+    <div class="presets">
+      <button data-p="original" class="primary">Original</button>
+      <button data-p="fauve">Fauve</button>
+      <button data-p="nocturne">Nocturne</button>
+      <button data-p="bleached">Bleached</button>
+      <button data-p="chrome">Chrome</button>
+    </div>
+    <div class="presets">
+      <button id="save">Save PNG</button>
+      <button id="zen">Full view</button>
+    </div>
+
+    <footer><a href="https://hejrani.com">hejrani.com</a></footer>
+  </aside>
+</div>
+
+<script>
+/* ── how old Erwin is, worked out from the Persian calendar so it never goes stale ── */
+(function(){
+  const out = document.getElementById('age');
+  try{
+    const p = new Intl.DateTimeFormat('en-u-ca-persian',{year:'numeric',month:'numeric'})
+                .formatToParts(new Date());
+    const y = +p.find(x => x.type === 'year').value;
+    const m = +p.find(x => x.type === 'month').value;
+    let age = y - 1397;
+    if (m < 5) age -= 1;               // Mordad is the fifth month
+    if (age > 0 && age < 130) out.textContent = age;
+  }catch(e){ /* leave the value in the markup */ }
+})();
+
+/* ── the seam ── */
+const compare = document.getElementById('compare');
+const base    = document.getElementById('base');
+const over    = document.getElementById('over');
+const pctL    = document.getElementById('pct-l');
+const pctR    = document.getElementById('pct-r');
+const labL    = document.getElementById('lab-l');
+const labR    = document.getElementById('lab-r');
+
+let x = 50;
+
+function drawSeam(){
+  document.documentElement.style.setProperty('--x', x + '%');
+  pctL.textContent = Math.round(x) + '%';
+  pctR.textContent = (100 - Math.round(x)) + '%';
+  labL.style.opacity = (0.34 + 0.66 * (x / 100)).toFixed(3);
+  labR.style.opacity = (0.34 + 0.66 * (1 - x / 100)).toFixed(3);
+  compare.setAttribute('aria-valuenow', Math.round(100 - x));
+  compare.setAttribute('aria-valuetext', Math.round(100 - x) + '% faceted');
+}
+
+function seamFromEvent(e){
+  const r = compare.getBoundingClientRect();
+  if (!r.width) return;
+  x = Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100));
+  drawSeam();
+}
+
+compare.addEventListener('pointerdown', e => {
+  compare.setPointerCapture(e.pointerId);
+  seamFromEvent(e);
+});
+compare.addEventListener('pointermove', e => {
+  if (compare.hasPointerCapture(e.pointerId)) seamFromEvent(e);
+});
+compare.addEventListener('keydown', e => {
+  const step = e.shiftKey ? 10 : 2;
+  if (e.key === 'ArrowLeft')  { x = Math.max(0, x - step); drawSeam(); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { x = Math.min(100, x + step); drawSeam(); e.preventDefault(); }
+  if (e.key === 'Home')       { x = 0;   drawSeam(); e.preventDefault(); }
+  if (e.key === 'End')        { x = 100; drawSeam(); e.preventDefault(); }
+});
+
+/* ── the palette ── */
+const ids = ['saturate','contrast','hue','brightness','sepia'];
+const el = {}, out = {};
+ids.forEach(i => { el[i] = document.getElementById(i); out[i] = document.getElementById('o-' + i); });
+
+const UNIT = { hue:'°', saturate:'%', contrast:'%', brightness:'%', sepia:'%' };
+
+const PRESETS = {
+  original: { saturate:100, contrast:100, hue:0,   brightness:100, sepia:0  },
+  fauve:    { saturate:245, contrast:118, hue:12,  brightness:104, sepia:0  },
+  nocturne: { saturate:135, contrast:132, hue:205, brightness:74,  sepia:0  },
+  bleached: { saturate:38,  contrast:112, hue:0,   brightness:118, sepia:34 },
+  chrome:   { saturate:0,   contrast:158, hue:0,   brightness:98,  sepia:0  }
+};
+
+function filterString(){
+  return `saturate(${el.saturate.value}%) contrast(${el.contrast.value}%) `
+       + `hue-rotate(${el.hue.value}deg) brightness(${el.brightness.value}%) `
+       + `sepia(${el.sepia.value}%)`;
+}
+
+function apply(){
+  ids.forEach(i => out[i].textContent = el[i].value + UNIT[i]);
+  const f = filterString();
+  base.style.filter = f;
+  over.style.filter = f;
+}
+
+function set(p, animate){
+  const t = PRESETS[p];
+  if (!t) return;
+  if (!animate){ ids.forEach(i => el[i].value = t[i]); apply(); return; }
+  const from = {}; ids.forEach(i => from[i] = +el[i].value);
+  const t0 = performance.now(), dur = 420;
+  const ease = v => 1 - Math.pow(1 - v, 3);
+  (function step(){
+    const k = ease(Math.min(1, (performance.now() - t0) / dur));
+    ids.forEach(i => el[i].value = Math.round(from[i] + (t[i] - from[i]) * k));
+    apply();
+    if (k < 1) requestAnimationFrame(step);
+  })();
+}
+
+ids.forEach(i => el[i].addEventListener('input', apply));
+document.querySelectorAll('[data-p]').forEach(b =>
+  b.addEventListener('click', () => set(b.dataset.p, !matchMedia('(prefers-reduced-motion: reduce)').matches)));
+
+/* ── bake the current split and palette into a file, always at full size ── */
+const saveBtn = document.getElementById('save');
+let fullPair = null;
+
+function loadFullSize(){
+  if (fullPair) return fullPair;
+  const one = src => new Promise((res, rej) => {
+    const i = new Image();
+    i.onload = () => res(i);
+    i.onerror = () => rej(new Error(src));
+    i.src = src;
+  });
+  fullPair = Promise.all([one('drawing-1920.jpg'), one('cubist-1920.jpg')]);
+  return fullPair;
+}
+
+saveBtn.addEventListener('click', async () => {
+  const label = saveBtn.textContent;
+  saveBtn.textContent = 'Saving…'; saveBtn.disabled = true;
+  try {
+    const [bFull, oFull] = await loadFullSize();
+    const w = bFull.naturalWidth, h = bFull.naturalHeight;
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+    if ('filter' in ctx) ctx.filter = filterString();
+    ctx.drawImage(bFull, 0, 0, w, h);
+    const cut = Math.round(w * x / 100);
+    if (cut < w) ctx.drawImage(oFull, cut, 0, w - cut, h, cut, 0, w - cut, h);
+    const a = document.createElement('a');
+    a.download = 'erwin-portrait.png';
+    a.href = c.toDataURL('image/png');
+    a.click();
+  } catch (e) {
+    fullPair = null;
+    alert('The export did not run. This works on the live site — opening the file straight from disk blocks it. Right-click the picture and choose "Save image as" instead.');
+  } finally {
+    saveBtn.textContent = label; saveBtn.disabled = false;
+  }
+});
+
+/* ── gallery mode ── */
+const zen = () => document.body.classList.toggle('zen');
+document.getElementById('zen').addEventListener('click', zen);
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'Escape') document.body.classList.remove('zen');
+  if (e.key === 'r') { set('original', true); x = 50; drawSeam(); }
+  if (e.key === 'f') zen();
+});
+
+drawSeam();
+apply();
+</script>
+</body>
+</html>
