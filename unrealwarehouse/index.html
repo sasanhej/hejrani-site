@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unreal Warehouse — a simulated order-picking floor</title>
+<meta name="description" content="Unreal Warehouse is a full-scale warehouse floor rebuilt in Unreal Engine, built to test gamified order-picking scenarios before they reach a real shift. A Constructor University research project.">
+<meta property="og:title" content="Unreal Warehouse — a simulated order-picking floor">
+<meta property="og:description" content="A warehouse floor rebuilt in Unreal Engine, built to test gamified order-picking scenarios before they reach a real shift.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://unrealwarehouse.hejrani.com">
+<meta property="og:image" content="https://unrealwarehouse.hejrani.com/assets/og-image.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --concrete:#E6E8E6;
+  --ink:#16202B;
+  --steel:#3E5266;
+  --muted:#6B7A86;
+  --signal:#C8901A;
+  --rule:#C3CAC6;
+  --display:"Archivo", system-ui, sans-serif;
+  --body:"IBM Plex Sans", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+  --gut:clamp(1.5rem, 5vw, 5rem);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--concrete); color:var(--ink);
+  font-family:var(--body); font-weight:300;
+  font-size:clamp(1rem, .95rem + .3vw, 1.13rem); line-height:1.6;
+}
+a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--rule)}
+a:hover{border-bottom-color:var(--signal)}
+:focus-visible{outline:2px solid var(--signal); outline-offset:3px}
+.wrap{max-width:1140px; margin:0 auto; padding:0 var(--gut)}
+.eyebrow{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted);
+}
+.eyebrow a{color:var(--muted); border-bottom:1px solid var(--rule)}
+.eyebrow a:hover{color:var(--ink); border-bottom-color:var(--signal)}
+
+header{padding:clamp(2.2rem,6vw,3.5rem) 0 0}
+.id{display:flex; flex-wrap:wrap; gap:.5rem 1.5rem; align-items:baseline; margin-bottom:2.2rem}
+h1{
+  font-family:var(--display); font-variation-settings:'wdth' 118;
+  font-weight:800; font-size:clamp(2.1rem,1.2rem + 4vw,4.1rem);
+  line-height:.95; letter-spacing:-.02em; margin:0; text-transform:uppercase;
+}
+.thesis{
+  font-family:var(--display); font-variation-settings:'wdth' 96;
+  font-weight:400; font-size:clamp(1.3rem,1rem + 1.6vw,2.15rem);
+  line-height:1.24; letter-spacing:-.01em; max-width:19ch; margin:0 0 .9rem;
+}
+.thesis b{font-weight:700}
+.sub{max-width:52ch; color:var(--steel); margin:0}
+
+/* HERO DIAGRAM: a top-down floor plan with a picker's route drawing itself in */
+.floor{margin:clamp(2.2rem,6vw,3.5rem) 0 0; border-top:1px solid var(--rule)}
+.floor svg{display:block; width:100%; height:auto; overflow:visible}
+.rack{fill:var(--concrete); stroke:var(--steel); stroke-width:1.4}
+.bldg{fill:none; stroke:var(--rule); stroke-width:1.5}
+.zonelab{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; fill:var(--muted)}
+.route{
+  fill:none; stroke:var(--signal); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round;
+  stroke-dasharray:2600; stroke-dashoffset:2600;
+  animation:draw 3.2s cubic-bezier(.65,0,.35,1) .3s forwards;
+}
+.picker{fill:var(--ink); opacity:0; animation:pop .3s ease .3s forwards}
+.stop{fill:var(--concrete); stroke:var(--ink); stroke-width:2; opacity:0; animation:pop .35s ease forwards}
+.s1{animation-delay:.75s} .s2{animation-delay:1.5s} .s3{animation-delay:2.25s} .s4{animation-delay:3.1s}
+.stop.done{fill:var(--signal); stroke:var(--signal)}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{from{opacity:0; transform:scale(.4)} to{opacity:1; transform:scale(1)}}
+
+section{padding:clamp(3.2rem,8vw,5.5rem) 0 0}
+h2{
+  font-family:var(--mono); font-size:.7rem; font-weight:500; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 1.6rem;
+  padding-bottom:.7rem; border-bottom:1px solid var(--rule);
+}
+.grid{display:grid; gap:2rem clamp(1.5rem,4vw,3.5rem); grid-template-columns:1fr}
+@media (min-width:820px){ .grid{grid-template-columns:repeat(3,1fr)} }
+.card h3{
+  font-family:var(--display); font-variation-settings:'wdth' 104;
+  font-weight:700; font-size:1.18rem; line-height:1.2; margin:0 0 .55rem;
+}
+.card p{margin:0; color:var(--steel); font-size:.97rem}
+
+.prose{max-width:62ch}
+.prose p{margin:0 0 1.1rem}
+.prose p:last-child{margin-bottom:0}
+
+/* Sequential pipeline — content really is a four-step cycle */
+.pipeline{list-style:none; margin:0; padding:0}
+.pipe-item{
+  display:grid; grid-template-columns:3.2rem 1fr; gap:0 1.4rem;
+  padding:1.3rem 0; border-top:1px solid var(--rule);
+}
+.pipeline li:last-child{border-bottom:1px solid var(--rule)}
+.pipe-n{font-family:var(--mono); font-size:.85rem; color:var(--signal); padding-top:.15rem}
+.pipe-item h3{
+  font-family:var(--display); font-variation-settings:'wdth' 104;
+  font-weight:700; font-size:1.12rem; margin:0 0 .35rem;
+}
+.pipe-item p{margin:0; color:var(--steel); font-size:.95rem; max-width:58ch}
+
+.team-grid{display:grid; gap:2.2rem 1.8rem; grid-template-columns:1fr}
+@media (min-width:700px){ .team-grid{grid-template-columns:repeat(3,1fr)} }
+.person-photo{
+  width:100%; aspect-ratio:1/1; object-fit:cover; display:block;
+  filter:grayscale(1) contrast(1.02); background:var(--steel);
+  border:1px solid var(--rule);
+}
+.person h3{
+  font-family:var(--display); font-variation-settings:'wdth' 104;
+  font-weight:700; font-size:1.1rem; margin:.85rem 0 .2rem;
+}
+.person .role{color:var(--steel); font-size:.92rem; margin:0 0 .4rem; max-width:30ch}
+.person a{font-family:var(--mono); font-size:.78rem; letter-spacing:.02em}
+
+.piece{display:block; padding:1.4rem 0; border-top:1px solid var(--rule); border-bottom:0}
+.piece:hover{border-bottom:0}
+.piece h3{font-family:var(--display); font-variation-settings:'wdth' 104; font-weight:700; font-size:1.3rem; margin:.35rem 0 .4rem}
+.piece p{margin:0; color:var(--steel); font-size:.95rem; max-width:60ch}
+
+.dl{display:inline-flex; align-items:center; gap:.5rem; font-family:var(--mono); font-size:.85rem; margin-top:1.1rem}
+
+.contact{display:flex; flex-wrap:wrap; gap:.7rem 2rem; font-family:var(--mono); font-size:.92rem}
+
+footer{
+  margin-top:clamp(3.5rem,8vw,6rem); padding:1.2rem 0 2.5rem;
+  border-top:1px solid var(--rule);
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.05em; color:var(--muted);
+  display:flex; flex-wrap:wrap; gap:.4rem 1.5rem; justify-content:space-between;
+}
+
+.rise{opacity:0; transform:translateY(12px); animation:rise .7s cubic-bezier(.2,.7,.3,1) forwards}
+.d1{animation-delay:.05s} .d2{animation-delay:.15s} .d3{animation-delay:.25s}
+@keyframes rise{to{opacity:1; transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important; transition:none !important}
+  .rise,.stop,.picker{opacity:1; transform:none}
+  .route{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow rise d1"><a href="https://hejrani.com">hejrani.com</a> · research · Constructor University</p>
+  <div class="id rise d2" style="margin-top:.6rem">
+    <h1>Unreal Warehouse</h1>
+    <span class="eyebrow">Bremen · EITIE lab · Octalysis gamification study</span>
+  </div>
+  <p class="thesis rise d2">A picking floor we can <b>rebuild every morning.</b></p>
+  <p class="sub rise d3">Unreal Warehouse is a full-scale warehouse floor rebuilt inside Unreal Engine, so we can hand the same order-picking task to a dozen different game designs before any of them touch a real shift.</p>
+
+  <div class="floor">
+    <svg viewBox="0 0 1000 380" role="img" aria-label="Top-down diagram of a warehouse floor plan with a picker's route drawn between the entrance, three racks, and the pack station">
+      <rect class="bldg" x="20" y="20" width="960" height="340" rx="2"></rect>
+      <text class="zonelab" x="34" y="345">In</text>
+      <text class="zonelab" x="895" y="345" text-anchor="end">Pack</text>
+      <!-- rack rows -->
+      <g>
+        <rect class="rack" x="90"  y="55"  width="90" height="26"></rect>
+        <rect class="rack" x="200" y="55"  width="90" height="26"></rect>
+        <rect class="rack" x="310" y="55"  width="90" height="26"></rect>
+        <rect class="rack" x="420" y="55"  width="90" height="26"></rect>
+        <rect class="rack" x="530" y="55"  width="90" height="26"></rect>
+        <rect class="rack" x="640" y="55"  width="90" height="26"></rect>
+        <rect class="rack" x="750" y="55"  width="90" height="26"></rect>
+      </g>
+      <g>
+        <rect class="rack" x="90"  y="127" width="90" height="26"></rect>
+        <rect class="rack" x="200" y="127" width="90" height="26"></rect>
+        <rect class="rack" x="310" y="127" width="90" height="26"></rect>
+        <rect class="rack" x="420" y="127" width="90" height="26"></rect>
+        <rect class="rack" x="530" y="127" width="90" height="26"></rect>
+        <rect class="rack" x="640" y="127" width="90" height="26"></rect>
+        <rect class="rack" x="750" y="127" width="90" height="26"></rect>
+      </g>
+      <g>
+        <rect class="rack" x="90"  y="199" width="90" height="26"></rect>
+        <rect class="rack" x="200" y="199" width="90" height="26"></rect>
+        <rect class="rack" x="310" y="199" width="90" height="26"></rect>
+        <rect class="rack" x="420" y="199" width="90" height="26"></rect>
+        <rect class="rack" x="530" y="199" width="90" height="26"></rect>
+        <rect class="rack" x="640" y="199" width="90" height="26"></rect>
+        <rect class="rack" x="750" y="199" width="90" height="26"></rect>
+      </g>
+      <g>
+        <rect class="rack" x="90"  y="271" width="90" height="26"></rect>
+        <rect class="rack" x="200" y="271" width="90" height="26"></rect>
+        <rect class="rack" x="310" y="271" width="90" height="26"></rect>
+        <rect class="rack" x="420" y="271" width="90" height="26"></rect>
+        <rect class="rack" x="530" y="271" width="90" height="26"></rect>
+        <rect class="rack" x="640" y="271" width="90" height="26"></rect>
+        <rect class="rack" x="750" y="271" width="90" height="26"></rect>
+      </g>
+
+      <path class="route" d="M 45 330
+        L 45 240 L 245 240 L 245 153 L 145 153 L 145 106 L 365 106
+        L 365 240 L 475 240 L 475 297 L 685 297 L 685 106 L 800 106
+        L 800 297 L 940 297"></path>
+
+      <circle class="stop s1" cx="245" cy="153" r="6.5"></circle>
+      <circle class="stop s2" cx="365" cy="106" r="6.5"></circle>
+      <circle class="stop s3" cx="685" cy="106" r="6.5"></circle>
+      <circle class="stop s4 done" cx="940" cy="297" r="7"></circle>
+      <circle class="picker" cx="45" cy="330" r="7"></circle>
+    </svg>
+  </div>
+</header>
+
+<section>
+  <h2>What we're building</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>The floor</h3>
+      <p>A warehouse rebuilt in Unreal Engine — racks, picking lists, travel paths — so a scenario can be run end to end before it ever reaches a real shift.</p>
+    </div>
+    <div class="card">
+      <h3>The scenarios</h3>
+      <p>Octalysis-scored gamification elements — points, missions, leaderboards, timers — built around the picker's actual workflow, not bolted on afterwards.</p>
+    </div>
+    <div class="card">
+      <h3>The measurement</h3>
+      <p>Every simulated shift logs to a database alongside the KPIs order-picking research already tracks: travel time, distance, waiting time, picking errors. EEG is next, once a scenario earns it.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>How the research runs</h2>
+  <ol class="pipeline">
+    <li class="pipe-item">
+      <span class="pipe-n">01</span>
+      <div>
+        <h3>Score the scenario</h3>
+        <p>Candidate scenarios are scored against Octalysis's eight core drives and filtered with multi-criteria decision methods — before anyone spends time building one.</p>
+      </div>
+    </li>
+    <li class="pipe-item">
+      <span class="pipe-n">02</span>
+      <div>
+        <h3>Build it in Unreal Warehouse</h3>
+        <p>Scenarios that survive scoring get built onto the same simulated floor, so every one is compared under identical conditions.</p>
+      </div>
+    </li>
+    <li class="pipe-item">
+      <span class="pipe-n">03</span>
+      <div>
+        <h3>Run it and measure</h3>
+        <p>Simulated pickers work the floor. Real-world KPIs — and eventually EEG readings — show what the scenario actually changed, not just what it was designed to change.</p>
+      </div>
+    </li>
+    <li class="pipe-item">
+      <span class="pipe-n">04</span>
+      <div>
+        <h3>Fine-tune and repeat</h3>
+        <p>Results feed back into the scenario design. The cycle runs again until one is ready to leave the simulator for a real warehouse floor.</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <h2>Team</h2>
+  <div class="team-grid">
+    <div class="person">
+      <img class="person-photo" src="assets/team-sasan.jpg" alt="Portrait of Sasan Hejrani" loading="lazy">
+      <h3>Sasan Hejrani</h3>
+      <p class="role">Experiment, warehouse &amp; process design · support tooling (MySQL)</p>
+      <a href="https://www.linkedin.com/in/sasy/" target="_blank" rel="noopener">linkedin.com/in/sasy</a>
+    </div>
+    <div class="person">
+      <img class="person-photo" src="assets/team-michael.jpg" alt="Portrait of Michael Becker" loading="lazy">
+      <h3>Michael Becker</h3>
+      <p class="role">Unreal Engine warehouse simulation design</p>
+      <a href="https://linkedin.com" target="_blank" rel="noopener">linkedin.com</a>
+    </div>
+    <div class="person">
+      <img class="person-photo" src="assets/team-mohammadreza.jpg" alt="Portrait of Mohammadreza Rezaei" loading="lazy">
+      <h3>Mohammadreza Rezaei</h3>
+      <p class="role">Experiment review</p>
+      <a href="https://www.linkedin.com/in/mohammadreza-rezaei-a1134a338/" target="_blank" rel="noopener">linkedin.com/in/mohammadreza-rezaei</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Advisor</h2>
+  <a class="piece" href="https://constructor.university/faculty-member/omid-fatahi-valilai">
+    <span class="eyebrow">Constructor University</span>
+    <h3>Prof. Dr. Omid Fatahi Valilai</h3>
+    <p>Professor of Industrial Engineering at Constructor University Bremen, leading the Emerging Technologies in Industrial Engineering (EITIE) group. Advises this project, along with a wider group of PhD and Master's theses across supply chain, cloud manufacturing and circularity research — <span style="border-bottom:1px solid var(--rule)">including Sasan's own thesis listing</span>.</p>
+  </a>
+  <p class="dl"><a href="https://sites.google.com/view/fatahivalilai-omid/research/theses" target="_blank" rel="noopener">→ Thesis list</a></p>
+</section>
+
+<section>
+  <h2>The proposal</h2>
+  <div class="prose">
+    <p>The project behind Unreal Warehouse is a PhD proposal in International Logistics: <em>Gamification applications in a warehouse order picking system using Octalysis method.</em> It starts from a simple industry problem — order picking has some of the highest staff turnover in warehousing — and asks whether a well-designed game changes that, and how to tell a well-designed game from a badly-designed one before it's built.</p>
+    <p>The full proposal covers the Octalysis framework, five candidate picking scenarios, the KPI and EEG methodology, and a quarter-by-quarter research timeline through 2025.</p>
+  </div>
+  <p class="dl"><a href="assets/Sasan_Hejrani_Thesis_Proposal.pdf" download>↓ Download the thesis proposal (PDF)</a></p>
+</section>
+
+<section>
+  <h2>Contact</h2>
+  <div class="contact">
+    <a href="mailto:shejrani@constructor.university">shejrani@constructor.university</a>
+    <a href="mailto:morezaei@constructor.university">morezaei@constructor.university</a>
+    <a href="mailto:ofatahival@constructor.university">ofatahival@constructor.university</a>
+    <span style="color:var(--muted)">Bremen, Germany</span>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Unreal Warehouse</span>
+  <span>Part of <a href="https://hejrani.com" style="border-bottom:1px solid var(--rule)">hejrani.com</a> · Constructor University</span>
+</footer>
+
+</div>
+</body>
+</html>
