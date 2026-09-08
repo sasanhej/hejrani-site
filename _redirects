@@ -1,0 +1,13 @@
+# Canonicalize project subpaths to their dedicated subdomains
+/fractal          https://fractal.hejrani.com/          301
+/fractal/*        https://fractal.hejrani.com/:splat    301
+/mandelbrot       https://mandelbrot.hejrani.com/        301
+/mandelbrot/*     https://mandelbrot.hejrani.com/:splat  301
+/portrait         https://sasan.hejrani.com/             301
+/portrait/*       https://sasan.hejrani.com/:splat       301
+/erwin-art        https://erwin-art.hejrani.com/         301
+/erwin-art/*      https://erwin-art.hejrani.com/:splat   301
+/erwin-cubism     https://erwin-cubism.hejrani.com/       301
+/erwin-cubism/*   https://erwin-cubism.hejrani.com/:splat 301
+/unrealwarehouse    https://unrealwarehouse.hejrani.com/       301
+/unrealwarehouse/*  https://unrealwarehouse.hejrani.com/:splat 301
