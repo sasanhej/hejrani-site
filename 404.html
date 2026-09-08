@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not found — Sasan Hejrani</title>
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --concrete:#E6E8E6;
+  --ink:#16202B;
+  --steel:#3E5266;
+  --muted:#6B7A86;
+  --signal:#C8901A;
+  --rule:#C3CAC6;
+
+  --display:"Archivo", system-ui, sans-serif;
+  --body:"IBM Plex Sans", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+
+  --gut:clamp(1.5rem, 5vw, 5rem);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--concrete); color:var(--ink);
+  font-family:var(--body); font-weight:300;
+  font-size:clamp(1rem, .95rem + .3vw, 1.13rem); line-height:1.6;
+  min-height:100vh; display:flex; flex-direction:column;
+}
+a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--rule)}
+a:hover{border-bottom-color:var(--signal)}
+:focus-visible{outline:2px solid var(--signal); outline-offset:3px}
+
+.wrap{max-width:1140px; margin:0 auto; padding:0 var(--gut); width:100%}
+
+main{flex:1; display:flex; align-items:center; padding:clamp(3rem,10vw,7rem) 0}
+
+.eyebrow{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 1.25rem;
+}
+.code{
+  font-family:var(--display); font-variation-settings:'wdth' 118;
+  font-weight:800; font-size:clamp(4rem,3rem + 9vw,9rem);
+  line-height:.85; letter-spacing:-.03em; margin:0; color:var(--ink);
+}
+.code span{color:var(--signal)}
+h1{
+  font-family:var(--display); font-variation-settings:'wdth' 96;
+  font-weight:400; font-size:clamp(1.3rem,1rem + 1.6vw,2.15rem);
+  line-height:1.24; letter-spacing:-.01em; max-width:22ch;
+  margin:1.75rem 0 .9rem;
+}
+h1 b{font-weight:700}
+.sub{max-width:44ch; color:var(--steel); margin:0 0 2.5rem}
+
+.links{
+  list-style:none; margin:0; padding:0;
+  border-top:1px solid var(--rule); max-width:44rem;
+}
+.links li{border-bottom:1px solid var(--rule)}
+.links a{
+  display:grid; grid-template-columns:1fr auto; gap:1rem; align-items:baseline;
+  padding:.95rem 0; border-bottom:0;
+}
+.links a:hover .t{color:var(--signal)}
+.links .t{font-family:var(--display); font-variation-settings:'wdth' 106; font-weight:500; font-size:1.02rem}
+.links .d{font-family:var(--mono); font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); text-align:right}
+
+footer{padding:0 0 clamp(2rem,5vw,3.5rem)}
+footer p{font-family:var(--mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0}
+</style>
+</head>
+<body>
+
+<main>
+  <div class="wrap">
+    <p class="eyebrow">Error 404</p>
+    <p class="code">4<span>0</span>4</p>
+    <h1>This page <b>doesn't exist</b>.</h1>
+    <p class="sub">The URL may be mistyped, or the page may have moved to one of the project subdomains below.</p>
+
+    <ul class="links">
+      <li><a href="https://hejrani.com/"><span class="t">Home</span><span class="d">hejrani.com</span></a></li>
+      <li><a href="https://sasan.hejrani.com/"><span class="t">Portraiture</span><span class="d">sasan.hejrani.com</span></a></li>
+      <li><a href="https://fractal.hejrani.com/"><span class="t">Fractal deep zoom</span><span class="d">fractal.hejrani.com</span></a></li>
+      <li><a href="https://mandelbrot.hejrani.com/"><span class="t">Mandelbrot</span><span class="d">mandelbrot.hejrani.com</span></a></li>
+      <li><a href="https://erwin-art.hejrani.com/"><span class="t">Erwin — art</span><span class="d">erwin-art.hejrani.com</span></a></li>
+      <li><a href="https://erwin-cubism.hejrani.com/"><span class="t">Erwin — cubism</span><span class="d">erwin-cubism.hejrani.com</span></a></li>
+      <li><a href="https://unrealwarehouse.hejrani.com/"><span class="t">Unreal Warehouse</span><span class="d">unrealwarehouse.hejrani.com</span></a></li>
+    </ul>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><p>Sasan Hejrani — Berlin</p></div>
+</footer>
+
+</body>
+</html>
