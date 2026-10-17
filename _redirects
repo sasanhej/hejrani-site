@@ -11,3 +11,7 @@
 /erwin-cubism/*   https://erwin-cubism.hejrani.com/:splat 301
 /unrealwarehouse    https://unrealwarehouse.hejrani.com/       301
 /unrealwarehouse/*  https://unrealwarehouse.hejrani.com/:splat 301
+
+# Old root about page now lives on the fractal subdomain
+/about             https://fractal.hejrani.com/about          301
+/about.html        https://fractal.hejrani.com/about          301

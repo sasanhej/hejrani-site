@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datenschutzerklärung — Sasan Hejrani</title>
+<meta name="description" content="Privacy notice for hejrani.com: hosting by Cloudflare, no cookies, no tracking, no analytics, self-hosted fonts.">
+<link rel="canonical" href="https://hejrani.com/datenschutz">
+
+<style>
+/* Self-hosted fonts (latin subset, SIL OFL 1.1, see /fonts/LICENSE.txt) */
+@font-face{font-family:"Archivo"; font-style:normal; font-weight:400 900; font-stretch:62% 125%; font-display:swap; src:url("/fonts/archivo-latin.woff2") format("woff2"); unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"IBM Plex Mono"; font-style:normal; font-weight:400; font-display:swap; src:url("/fonts/ibm-plex-mono-400-latin.woff2") format("woff2"); unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"IBM Plex Mono"; font-style:normal; font-weight:500; font-display:swap; src:url("/fonts/ibm-plex-mono-500-latin.woff2") format("woff2"); unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:"IBM Plex Sans"; font-style:normal; font-weight:300 500; font-display:swap; src:url("/fonts/ibm-plex-sans-latin.woff2") format("woff2"); unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+</style>
+
+<style>
+:root{
+  --concrete:#E6E8E6;
+  --ink:#16202B;
+  --steel:#3E5266;
+  --muted:#56636E;
+  --signal:#C8901A;
+  --rule:#C3CAC6;
+
+  --display:"Archivo", system-ui, sans-serif;
+  --body:"IBM Plex Sans", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+
+  --gut:clamp(1.5rem, 5vw, 5rem);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--concrete); color:var(--ink);
+  font-family:var(--body); font-weight:300;
+  font-size:clamp(1rem, .95rem + .3vw, 1.13rem); line-height:1.6;
+}
+a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--rule)}
+a:hover{border-bottom-color:var(--signal)}
+:focus-visible{outline:2px solid var(--signal); outline-offset:3px}
+
+.wrap{max-width:1140px; margin:0 auto; padding:0 var(--gut)}
+
+.eyebrow{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted);
+}
+a.eyebrow{border-bottom:0}
+a.eyebrow:hover{color:var(--ink)}
+
+header{padding:clamp(3rem,8vw,6rem) 0 0}
+.id{display:flex; flex-wrap:wrap; gap:.5rem 1.5rem; align-items:baseline; margin-bottom:1.6rem}
+h1{
+  font-family:var(--display); font-variation-settings:'wdth' 118;
+  font-weight:800; font-size:clamp(1.6rem,.9rem + 3.4vw,3.4rem);
+  line-height:1; letter-spacing:-.02em; margin:0 0 1.2rem; text-transform:uppercase;
+  overflow-wrap:break-word; hyphens:manual;
+}
+.thesis{
+  font-family:var(--display); font-variation-settings:'wdth' 96;
+  font-weight:400; font-size:clamp(1.2rem,1rem + 1.1vw,1.7rem);
+  line-height:1.24; letter-spacing:-.01em; max-width:34ch; margin:0 0 .9rem;
+}
+.thesis b{font-weight:700}
+.sub{max-width:52ch; color:var(--steel); margin:0}
+
+section{padding:clamp(2.6rem,6vw,4rem) 0 0}
+h2{
+  font-family:var(--mono); font-size:.7rem; font-weight:500; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 1.4rem;
+  padding-bottom:.7rem; border-bottom:1px solid var(--rule);
+}
+h3{
+  font-family:var(--display); font-variation-settings:'wdth' 104;
+  font-weight:700; font-size:1.05rem; line-height:1.25; margin:1.8rem 0 .5rem;
+}
+.prose{max-width:66ch}
+.prose p{margin:0 0 1.05rem}
+.prose p:last-child{margin-bottom:0}
+.prose ul{margin:0 0 1.05rem; padding-left:1.1rem}
+.prose li{margin:0 0 .35rem}
+.prose li::marker{color:var(--signal)}
+.prose strong{font-weight:500}
+
+.facts{list-style:none; margin:0; padding:0; max-width:44rem; font-family:var(--mono); font-size:.8rem; line-height:1.6; color:var(--steel)}
+.facts li{display:grid; grid-template-columns:7.5rem 1fr; gap:.4rem 1rem; padding:.55rem 0; border-top:1px solid var(--rule)}
+.facts li:last-child{border-bottom:1px solid var(--rule)}
+.facts dfn{font-style:normal; color:var(--muted); letter-spacing:.06em}
+@media (max-width:560px){ .facts li{grid-template-columns:1fr; gap:.1rem} }
+
+.nots{list-style:none; margin:0; padding:0; display:grid; gap:0 clamp(1.5rem,4vw,3.5rem); grid-template-columns:1fr; max-width:1000px}
+@media (min-width:820px){ .nots{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.nots li{border-top:1px solid var(--rule); padding:.7rem 0 .6rem; font-size:.95rem; color:var(--steel)}
+.nots b{font-family:var(--mono); font-weight:500; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink); display:block; margin-bottom:.15rem}
+
+footer{
+  margin-top:clamp(3.5rem,8vw,6rem); padding:1.2rem 0 2.5rem;
+  border-top:1px solid var(--rule);
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.05em; color:var(--muted);
+  display:flex; flex-wrap:wrap; gap:.4rem 1.5rem; justify-content:space-between;
+}
+footer a{color:var(--muted)}
+footer a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="id">
+      <a class="eyebrow" href="/">Sasan Hejrani · Berlin</a>
+    </div>
+    <h1 lang="de">Datenschutz&shy;erklärung</h1>
+    <p class="thesis">Privacy notice for <b>hejrani.com</b></p>
+    <p class="sub">This site is a personal portfolio. It sets no cookies, runs no tracking or analytics, and loads nothing from third parties. The only personal data involved is what any web server sees when a page is requested, and whatever you choose to send me by email.</p>
+  </header>
+
+  <section>
+    <h2>Controller</h2>
+    <ul class="facts">
+      <li><dfn>Name</dfn><span>Sasan Hejrani</span></li>
+      <li><dfn>Location</dfn><span>Berlin, Germany</span></li>
+      <li><dfn>Email</dfn><span><a href="mailto:s.hejrani@gmail.com">s.hejrani@gmail.com</a></span></li>
+    </ul>
+    <div class="prose">
+      <p style="margin-top:1.2rem">The controller within the meaning of the EU General Data Protection Regulation (GDPR) is the person named above. For any question about your data, or to exercise any of the rights listed below, write to the email address above.</p>
+      <p>This notice covers hejrani.com and the project pages on its subdomains (for example fractal.hejrani.com), which are run by the same person on the same hosting.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>What this site does not do</h2>
+    <ul class="nots">
+      <li><b>No cookies</b>The site does not set cookies and does not use browser storage to recognise you.</li>
+      <li><b>No tracking or analytics</b>There is no analytics script, tracking pixel, advertising or social-media plugin.</li>
+      <li><b>No third-party requests</b>Fonts, images and scripts are served from this site. Nothing is loaded from Google Fonts or any other external service.</li>
+      <li><b>No profiling</b>No automated decision-making or profiling within the meaning of Art. 22 GDPR takes place.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Hosting and server logs</h2>
+    <div class="prose">
+      <p>The site is hosted and delivered by Cloudflare (Cloudflare Pages and its content delivery network), provided by Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA.</p>
+      <p>When you open a page, your browser sends technical data that Cloudflare has to process to deliver the page and to protect the site against attacks and abuse. This typically includes:</p>
+      <ul>
+        <li>your IP address</li>
+        <li>date and time of the request</li>
+        <li>the page or file requested and the HTTP status code</li>
+        <li>the referring page, if your browser sends one</li>
+        <li>browser type and version, operating system (user agent)</li>
+        <li>amount of data transferred</li>
+      </ul>
+      <p><strong>Legal basis:</strong> Art. 6(1)(f) GDPR. My legitimate interest is delivering the site reliably and securely. I do not use this data to identify visitors, and I do not combine it with any other data.</p>
+      <p>Cloudflare processes this data on my behalf under its data processing addendum (Art. 28 GDPR) and deletes it in line with its own retention periods. Data may be processed in the USA. Cloudflare, Inc. is certified under the EU–U.S. Data Privacy Framework, for which the European Commission has adopted an adequacy decision (Art. 45 GDPR); Cloudflare additionally relies on the EU standard contractual clauses. If Cloudflare’s security systems challenge a request as suspicious, Cloudflare may set a strictly necessary security cookie to record that the challenge was passed; it is not used for tracking. Details: <a href="https://www.cloudflare.com/privacypolicy/">cloudflare.com/privacypolicy</a>.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Fonts</h2>
+    <div class="prose">
+      <p>The typefaces used here (Archivo, IBM Plex Sans, IBM Plex Mono and, on one project page, Newsreader) are stored on this site and delivered together with the pages. Your browser does not connect to Google Fonts or any other font service, so no data is passed to a font provider.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Contact by email</h2>
+    <div class="prose">
+      <p>If you email me, I process your email address, your name if you give it, the content of your message and any attachments, solely to read and answer your request.</p>
+      <p><strong>Legal basis:</strong> Art. 6(1)(b) GDPR where your message relates to a contract or to steps before entering into one (for example a job opportunity); otherwise Art. 6(1)(f) GDPR, my legitimate interest in answering messages sent to me.</p>
+      <p>My mailbox is provided by Google (Gmail), so messages are stored on Google’s servers. I keep correspondence only as long as needed to deal with your request, unless a statutory retention obligation applies.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Links to other sites</h2>
+    <div class="prose">
+      <p>This site links to other websites, such as LinkedIn and Constructor University. These are plain links: nothing is loaded from those sites until you click one. Once you do, the privacy policy of the site you visit applies.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Your rights</h2>
+    <div class="prose">
+      <p>Under the GDPR you have the following rights regarding personal data about you:</p>
+      <ul>
+        <li>access to the data (Art. 15)</li>
+        <li>rectification of inaccurate data (Art. 16)</li>
+        <li>erasure (Art. 17)</li>
+        <li>restriction of processing (Art. 18)</li>
+        <li>notification of recipients about rectification, erasure or restriction (Art. 19)</li>
+        <li>data portability (Art. 20)</li>
+        <li>objection to processing (Art. 21)</li>
+      </ul>
+      <p><strong>Right to object:</strong> where processing is based on Art. 6(1)(f) GDPR, you can object at any time on grounds relating to your particular situation. I will then stop processing the data unless there are compelling legitimate grounds that override your interests, or the processing is needed to establish, exercise or defend legal claims.</p>
+      <p>To exercise any of these rights, email <a href="mailto:s.hejrani@gmail.com">s.hejrani@gmail.com</a>.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Right to lodge a complaint</h2>
+    <div class="prose">
+      <p>You have the right to lodge a complaint with a data protection supervisory authority (Art. 77 GDPR). The authority responsible for this site is:</p>
+      <p lang="de">Berliner Beauftragte für Datenschutz und Informationsfreiheit<br>
+      Alt-Moabit 59–61, 10555 Berlin<br>
+      <a href="https://www.datenschutz-berlin.de/">datenschutz-berlin.de</a></p>
+      <p>You may also contact the supervisory authority in the EU member state where you live or work.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Changes</h2>
+    <div class="prose">
+      <p>This notice is updated when the site changes. Last updated: 17 October 2026.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 Sasan Hejrani</span>
+    <a href="/">hejrani.com</a>
+    <a href="/datenschutz" aria-current="page">Datenschutz</a>
+    <!-- TODO Impressum: needs postal address -->
+  </footer>
+
+</div>
+</body>
+</html>
